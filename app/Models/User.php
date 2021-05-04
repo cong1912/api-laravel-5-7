@@ -36,6 +36,10 @@ use Laravel\Sanctum\HasApiTokens;
  * @method static \Illuminate\Database\Eloquent\Builder|User whereRememberToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|User whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\Laravel\Sanctum\PersonalAccessToken[] $tokens
+ * @property-read int|null $tokens_count
+ * @method static \Illuminate\Database\Eloquent\Builder|User ambassadors()
+ * @method static \Illuminate\Database\Eloquent\Builder|User admins()
  */
 class User extends Authenticatable
 {
@@ -47,6 +51,11 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
     ];
-
+    public function scopeAmbassadors($query){
+        return $query->where('is_admin',0);
+    }
+    public function scopeAdmins($query){
+        return $query->where('is_admin',1);
+    }
 
 }
