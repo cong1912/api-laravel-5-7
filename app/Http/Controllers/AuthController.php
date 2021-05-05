@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateInfoRequest;
 use App\Http\Requests\UpdatePasswordRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use http\Cookie;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class AuthController extends Controller
             $request->only('first_name',"last_name","email")
             +[
                 'password'=>\Hash::make($request->input('password')),
-                'is_admin'=>1
+                'is_admin'=>$request->path()==='api/admin/register' ?1:0
             ]
         );
         return response($user,Response::HTTP_CREATED);
@@ -29,14 +30,25 @@ class AuthController extends Controller
             ],Response::HTTP_UNAUTHORIZED);
         }
         $user=\Auth::user();
-        $jwt=$user->createToken('token',['admin'])->plainTextToken;
+        $adminLogin=$request->path()==='api/admin/login';
+
+        if($adminLogin && !$user->is_admin){
+            return response([
+                'error'=>"Access Denied!"
+            ],Response::HTTP_UNAUTHORIZED);
+        }
+
+        $scope=$adminLogin?'admin':"ambassador";
+
+        $jwt=$user->createToken('token',[$scope])->plainTextToken;
         $cookie= cookie('jwt',$jwt,60*24);
         return response([
             'message'=>'success'
         ])->withCookie($cookie);
     }
     public function user(Request $request){
-        return $request->user();
+        $user= $request->user();
+        return new UserResource($user);
     }
     public function logout(){
         $cookie=\Cookie::forget('jwt');

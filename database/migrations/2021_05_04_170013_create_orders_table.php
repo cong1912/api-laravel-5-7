@@ -28,6 +28,8 @@ class CreateOrdersTable extends Migration
             $table->string('zip')->nullable();
             $table->tinyInteger('complete')->default(0);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

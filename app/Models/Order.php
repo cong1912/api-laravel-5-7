@@ -47,6 +47,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read mixed $admin_revenue
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\OrderItem[] $orderItems
  * @property-read int|null $order_items_count
+ * @property-read mixed $ambassador_revenue
  */
 class Order extends Model
 {
@@ -61,5 +62,9 @@ class Order extends Model
     }
     public function getAdminRevenueAttribute(){
         return $this->orderItems->sum(fn(OrderItem $item)=>$item->admin_revenue);
+    }
+    public function getAmbassadorRevenueAttribute(){
+        usleep(100000);
+        return $this->orderItems->sum(fn(OrderItem $item)=>$item->ambassador_revenue);
     }
 }
